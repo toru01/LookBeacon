@@ -1,47 +1,51 @@
 package jp.techacademy.toru.kikuchi.taskapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import java.util.ArrayList;
 
-/**
- * Created by SBM on 2/22/17.
- */
-
 public class TaskAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater;
-    private ArrayList<String> mTaskArrayList;
+    private ArrayList<Task> mTaskArrayList;
 
     public TaskAdapter(Context context) {
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void setTaskArrayList(ArrayList<String> taskArrayList) {
+    public void setTaskArrayList(ArrayList<Task> taskArrayList) {
         mTaskArrayList = taskArrayList;
     }
 
     @Override
     public int getCount() {
-        return 0;
+        return mTaskArrayList.size();
     }
 
     @Override
-    public Object getItem(int i) {
-        return null;
+    public Object getItem(int position) {
+        return mTaskArrayList.get(position);
     }
 
     @Override
-    public long getItemId(int i) {
-        return 0;
+    public long getItemId(int position) {
+        return mTaskArrayList.get(position).getId();
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup) {
+    public View getView(int position, View convertView, ViewGroup parent) {
+
         if (convertView == null) {
             convertView = mLayoutInflater.inflate(android.R.layout.simple_list_item_2, null);
         }
@@ -49,8 +53,11 @@ public class TaskAdapter extends BaseAdapter {
         TextView textView1 = (TextView) convertView.findViewById(android.R.id.text1);
         TextView textView2 = (TextView) convertView.findViewById(android.R.id.text2);
 
-        // 後でTaskクラスから情報を取得するように変更する
-        textView1.setText(mTaskArrayList.get(position));
+        textView1.setText("Title : "+mTaskArrayList.get(position).getTitle()+" Category : "+mTaskArrayList.get(position).getCategory());
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE);
+        Date date = mTaskArrayList.get(position).getDate();
+        textView2.setText(simpleDateFormat.format(date));
 
         return convertView;
     }
