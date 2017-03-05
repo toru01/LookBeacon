@@ -28,7 +28,7 @@ public class TaskAlarmReceiver extends BroadcastReceiver {
         int taskId = intent.getIntExtra(MainActivity.EXTRA_TASK, -1);
         Realm realm = Realm.getDefaultInstance();
         Task task = realm.where(Task.class).equalTo("id", taskId).findFirst();
-        realm.close();
+        //realm.close();
 
         // タスクの情報を設定する
         builder.setTicker(task.getTitle()); // 5.0以降は表示されない

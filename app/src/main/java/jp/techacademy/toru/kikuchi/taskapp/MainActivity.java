@@ -34,11 +34,15 @@ public class MainActivity extends AppCompatActivity {
     private RealmChangeListener mRealmListener = new RealmChangeListener() {
         @Override
         public void onChange(Object element) {
+            // アクティビティ再生成のときにクリアする
+            searchEdit.setText("");
+            refreshListView();
             reloadListView();
         }
     };
     private ListView mListView;
     private TaskAdapter mTaskAdapter;
+    private EditText searchEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +61,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //SearchTextの設定
-        final EditText searchEdit = (EditText) findViewById(R.id.search_edit_text);
-
-        // Realmの設定
+        searchEdit = (EditText) findViewById(R.id.search_edit_text);
         mRealm = Realm.getDefaultInstance();
         mTaskRealmResults = mRealm.where(Task.class).findAll();
         mTaskRealmResults.sort("date", Sort.DESCENDING);
@@ -80,15 +82,13 @@ public class MainActivity extends AppCompatActivity {
                     inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                     if(searchEdit.getText().length()==0) {
-                        mTaskRealmResults = mRealm.where(Task.class).findAll();
-                        mTaskRealmResults.sort("date", Sort.DESCENDING);
-                        mRealm.addChangeListener(mRealmListener);
-                        //検索処理
-                        Toast.makeText(MainActivity.this, "すべて表示", Toast.LENGTH_LONG).show();
+                        refreshListView();
                         reloadListView();
                     }else {
                         mTaskRealmResults = mRealm.where(Task.class)
-                                .equalTo("category", searchEdit.getText().toString())
+                                //部分一致に変更
+                                .contains("category",searchEdit.getText().toString())
+                                //.equalTo("category",searchEdit.getText().toString())
                                 .findAll();
                         mTaskRealmResults.sort("date", Sort.DESCENDING);
                         mRealm.addChangeListener(mRealmListener);
@@ -172,6 +172,16 @@ public class MainActivity extends AppCompatActivity {
         reloadListView();
     }
 
+    //
+    private void refreshListView(){
+        mTaskRealmResults = mRealm.where(Task.class).findAll();
+        mTaskRealmResults.sort("date", Sort.DESCENDING);
+        mRealm.addChangeListener(mRealmListener);
+        //検索処理
+        Toast.makeText(MainActivity.this, "すべて表示", Toast.LENGTH_LONG).show();
+
+    }
+
     private void reloadListView() {
 
         ArrayList<Task> taskArrayList = new ArrayList<>();
@@ -195,6 +205,23 @@ public class MainActivity extends AppCompatActivity {
         mListView.setAdapter(mTaskAdapter);
         mTaskAdapter.notifyDataSetChanged();
     }
+
+/*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // アクティビティ再生成のときにクリアする
+        searchEdit.setText("");
+        // Realmの設定
+        mTaskRealmResults = mRealm.where(Task.class).findAll();
+        mTaskRealmResults.sort("date", Sort.DESCENDING);
+        mRealm.addChangeListener(mRealmListener);
+        //検索処理
+        Toast.makeText(MainActivity.this, "すべて表示", Toast.LENGTH_LONG).show();
+        reloadListView();
+
+    }
+    */
 
     @Override
     protected void onDestroy() {
